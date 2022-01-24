@@ -1,11 +1,19 @@
+import { Route, Routes } from "react-router-dom";
 import GlobalStyles from "./GlobalStyles";
+import FirstCalculator from "./pages/FirstCalculator";
+import MainPage from "./pages/MainPage";
+import SecondCalculator from "./pages/SecondCalculator";
 
 function App() {
   return (
-    <div className="App">
+    <>
       <GlobalStyles />
-      app
-    </div>
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/first" element={<FirstCalculator />} />
+        <Route path="/second" element={<SecondCalculator />} />
+      </Routes>
+    </>
   );
 }
 
