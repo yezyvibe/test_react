@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import GlobalStyles from "./GlobalStyles";
-import FirstCalculator from "./pages/FirstCalculator";
+import FirstCalculatorPage from "./pages/FirstCalculatorPage";
 import MainPage from "./pages/MainPage";
-import SecondCalculator from "./pages/SecondCalculator";
+import SecondCalculatorPage from "./pages/SecondCalculatorPage";
 
 function App() {
   return (
@@ -10,8 +10,8 @@ function App() {
       <GlobalStyles />
       <Routes>
         <Route path="/" element={<MainPage />} />
-        <Route path="/first" element={<FirstCalculator />} />
-        <Route path="/second" element={<SecondCalculator />} />
+        <Route path="/first" element={<FirstCalculatorPage />} />
+        <Route path="/second" element={<SecondCalculatorPage />} />
       </Routes>
     </>
   );
