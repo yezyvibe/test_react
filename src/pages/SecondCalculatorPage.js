@@ -3,11 +3,12 @@ import { getExchangeRate } from "../utils/api";
 import styled from "styled-components";
 
 function SecondCalculator() {
-  const [money, setMoney] = useState(0);
+  const [money, setMoney] = useState(1);
   const [selectedTab, setSelectedTab] = useState("CAD");
-  const [activeTab, setActiveTab] = useState("CAD");
   const [selectedCountry, setCountry] = useState("USD");
   const [result, setResult] = useState(0);
+  const [referenceDate, setReferenceDate] = useState("");
+  const [exchangeRateInfo, setExchangeRateInfo] = useState({});
 
   const data = [
     { id: "0", tabTitle: "USD" },
@@ -22,30 +23,29 @@ function SecondCalculator() {
     getData();
   }, []);
 
+  useEffect(() => {
+    if (!exchangeRateInfo) return;
+    calculate();
+  }, [exchangeRateInfo, selectedCountry, selectedTab]);
+
   const handleSelectTab = (e) => {
     setCountry(e.target.value);
-  };
-  useEffect(() => {
     calculate();
-  }, [selectedCountry, selectedTab]);
+  };
 
   const handleClick = (e) => {
     setSelectedTab(e.target.id);
-    setActiveTab(e.target.id);
   };
 
   const calculate = () => {
-    const fromCurrency = "USD" + selectedCountry;
-    const toCurrency = "USD" + selectedTab;
+    const fromCurrency = `USD${selectedCountry}`;
+    const toCurrency = `USD${selectedTab}`;
     setResult(
       exchangeRateInfo[toCurrency] *
         (1 / exchangeRateInfo[fromCurrency]) *
         money
     );
   };
-
-  const [referenceDate, setReferenceDate] = useState("");
-  const [exchangeRateInfo, setExchangeRateInfo] = useState({});
 
   const getData = async () => {
     try {
@@ -70,17 +70,23 @@ function SecondCalculator() {
   };
 
   const handleChange = (e) => {
-    setMoney(e.target.value);
+    const value = e.target.value.replace(/[^0-9]/, "");
+    setMoney(value);
     calculate();
   };
 
   const handleEnter = (e) => {
+    const maxMoney = 1000;
     if (e.charCode === 13) {
-      if (money > 1000) {
-        setMoney(1000);
+      if (money > maxMoney) {
+        setMoney(maxMoney);
       }
     }
     calculate();
+  };
+
+  const handleInputClick = (e) => {
+    e.target.value = "";
   };
 
   return (
@@ -89,7 +95,9 @@ function SecondCalculator() {
         <input
           onChange={handleChange}
           onKeyPress={handleEnter}
+          onClick={handleInputClick}
           type="number"
+          value={money}
         ></input>
         <select onChange={handleSelectTab}>
           {data.map((item) => (
@@ -106,7 +114,7 @@ function SecondCalculator() {
               key={item.id}
               id={item.tabTitle}
               onClick={handleClick}
-              isActive={activeTab === item.tabTitle}
+              isActive={selectedTab === item.tabTitle}
             >
               {item.tabTitle}
             </Tab>
@@ -114,7 +122,7 @@ function SecondCalculator() {
       </Tabs>
       <ResultBox>
         <Currency>
-          {selectedTab} : {result.toFixed(2)}
+          {result ? `${selectedTab}:${result.toFixed(2)}` : "loading.."}
         </Currency>
         <Date>기준일 : {referenceDate}</Date>
       </ResultBox>
