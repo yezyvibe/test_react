@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../components/Button";
-import { getExchangeRate } from "../utils/api";
+import useExchangeRateLoad from "../hooks/useExchangeRateLoad";
 import { comma } from "../utils/comma";
 import { FIRST_CALCULATOR_OPTIONS } from "../utils/constants";
 
 function FirstCalculator() {
-  const [loading, setLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
   const [remittance, setRemittance] = useState(0); // 송금액
   const [receviedAmount, setReceviedAmount] = useState(0); // 수취금액
   const [exchangeRate, setExchangeRate] = useState({
@@ -20,28 +18,18 @@ function FirstCalculator() {
     nation: "",
   });
 
-  const getData = async () => {
-    try {
-      setLoading(true);
-      const { quotes } = await getExchangeRate();
-      const { USDKRW, USDJPY, USDPHP } = quotes;
-      console.log(typeof USDKRW)
+  const { isLoading, isError, data } = useExchangeRateLoad();
+
+  useEffect(() => {
+    if (data) {
+      const { USDKRW, USDJPY, USDPHP } = data;
       setExchangeRate({ USDKRW, USDJPY, USDPHP });
       setSelectedExchangeRate({
         rate: USDKRW.toFixed(2),
         nation: "KRW",
       });
-    } catch (e) {
-      setIsError(true);
-      console.log(e);
-    } finally {
-      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
+  }, [data]);
 
   const onChangeOption = (e) => {
     const rate = exchangeRate[`USD${e.target.value}`].toFixed(2);
@@ -59,12 +47,12 @@ function FirstCalculator() {
 
   const onSubmit = () => {
     setReceviedAmount(
-      (parseInt(remittance) * selectedExchangeRate.rate).toFixed(2)
+      (parseFloat(remittance) * selectedExchangeRate.rate).toFixed(2)
     );
   };
 
   if (isError) return <div>로딩 중 에러가 발생 했습니다.</div>;
-  if (loading) return <div>환율 정보 로딩중...</div>;
+  if (isLoading) return <div>환율 정보 로딩중...</div>;
 
   return (
     <FirstCalculatorContainer>
@@ -81,9 +69,9 @@ function FirstCalculator() {
             {FIRST_CALCULATOR_OPTIONS.map((option) => {
               const { key, value, name } = option;
               return (
-                <Option key={`option-${key}`} value={value}>
+                <option key={`option-${key}`} value={value}>
                   {name}
-                </Option>
+                </option>
               );
             })}
           </select>
@@ -146,8 +134,6 @@ const CalculatorText = styled.span`
   font-size: 18px;
   font-weight: 500;
 `;
-
-const Option = styled.option``;
 
 const SubmitButton = styled(Button)`
   width: 110px;
