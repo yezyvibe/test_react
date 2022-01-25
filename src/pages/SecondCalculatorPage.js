@@ -71,22 +71,24 @@ function SecondCalculator() {
 
   const handleChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/, "");
-    setMoney(value);
-    calculate();
-  };
-
-  const handleEnter = (e) => {
     const maxMoney = 1000;
-    if (e.charCode === 13) {
-      if (money > maxMoney) {
-        setMoney(maxMoney);
-      }
+    if (value <= maxMoney && value >= 0) {
+      setMoney(value);
+    } else {
+      setMoney(maxMoney);
     }
     calculate();
   };
 
+  const handleEnter = (e) => {
+    if (e.charCode === 13) {
+      calculate();
+    }
+  };
+
   const handleInputClick = (e) => {
     e.target.value = "";
+    setMoney("");
   };
 
   return (
