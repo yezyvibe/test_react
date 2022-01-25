@@ -53,7 +53,34 @@ function SecondCalculator() {
 
   const handleClick = (e) => {
     setSelectedTab(e.target.id);
-    // getData(setCountry, selectedTab);
+    getData();
+  };
+
+  const [referenceDate, setReferenceDate] = useState("");
+
+  const [exchangeRateInfo, setExchangeRateInfo] = useState({});
+  const getData = async () => {
+    try {
+      const { quotes, timestamp } = await getExchangeRate();
+      // const { USDKRW, USDJPY, USDCAD, USDCNY, USDHKD} = quotes;
+      console.log(quotes);
+      console.log(timestamp);
+      const milliseconds = timestamp * 1000;
+      const dateObject = new window.Date(milliseconds);
+      const humanDateFormat = dateObject.toLocaleDateString();
+      const monthNameShort = dateObject.toLocaleString("en-US", {
+        month: "short",
+      });
+      setReferenceDate(
+        humanDateFormat.slice(0, 4) +
+          "-" +
+          monthNameShort +
+          "-" +
+          humanDateFormat.slice(9, 11)
+      );
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -84,12 +111,14 @@ function SecondCalculator() {
               </li>
             ))}
         </ul>
-        <div className="tab-content">{listContent}</div>
+        <div className="tab-content">
+          {listContent} <h3>{referenceDate}</h3>
+        </div>
       </Tabs>
       <ResultBox>
         <hr />
         <Currency>{selectedTab}</Currency>
-        <Date>날짜</Date>
+        <Date>기준일: {referenceDate}</Date>
       </ResultBox>
     </CalculatorContainer>
   );
