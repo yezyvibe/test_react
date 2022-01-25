@@ -1,3 +1,6 @@
+export const EXCHANGE_RATE_API_URL =
+  "http://api.currencylayer.com/live?access_key=a47d3fe24319dccb1d87ff3bb23ec31a";
+
 export const FIRST_CALCULATOR_OPTIONS = [
   {
     key: "KRW",
@@ -11,9 +14,3 @@ export const FIRST_CALCULATOR_OPTIONS = [
     name: "필리핀(PHP)",
   },
 ];
-
-export const EXCHANGE_RATE_API_URL =
-  "http://api.currencylayer.com/live?access_key=08c28b258693a109d3cd650a1b9ed45c";
-
-// export const EXCHANGE_RATE_API_URL =
-//   "http://api.currencylayer.com/live?access_key=e098cee98c2ba6aa5e8b9e67fc29adaa";
