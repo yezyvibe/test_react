@@ -45,7 +45,6 @@ function FirstCalculator() {
 
   const onChangeRemittance = (e) => {
     setRemittance(e.target.value);
-    console.log(e.target.value);
   };
 
   const onSubmit = useCallback(() => {
