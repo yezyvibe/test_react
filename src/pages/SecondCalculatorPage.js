@@ -10,12 +10,12 @@ function SecondCalculator() {
   const [result, setResult] = useState(0);
 
   const data = [
-    { id: "0", tabTitle: "USD", tabContent: "Tab Content 0" },
-    { id: "1", tabTitle: "CAD", tabContent: "Tab Content 1" },
-    { id: "2", tabTitle: "KRW", tabContent: "Tab Content 2" },
-    { id: "3", tabTitle: "HKD", tabContent: "Tab Content 3" },
-    { id: "4", tabTitle: "JPY", tabContent: "Tab Content 4" },
-    { id: "5", tabTitle: "CNY", tabContent: "Tab Content 5" },
+    { id: "0", tabTitle: "USD" },
+    { id: "1", tabTitle: "CAD" },
+    { id: "2", tabTitle: "KRW" },
+    { id: "3", tabTitle: "HKD" },
+    { id: "4", tabTitle: "JPY" },
+    { id: "5", tabTitle: "CNY" },
   ];
 
   useEffect(() => {
@@ -24,16 +24,14 @@ function SecondCalculator() {
 
   const handleSelectTab = (e) => {
     setCountry(e.target.value);
-    calculate();
   };
+  useEffect(() => {
+    calculate();
+  }, [selectedCountry, selectedTab]);
 
   const handleClick = (e) => {
     setSelectedTab(e.target.id);
     setActiveTab(e.target.id);
-    console.log(activeTab);
-    // console.log(e.target.id);
-    // console.log(selectedTab);
-    calculate();
   };
 
   const calculate = () => {
@@ -91,7 +89,6 @@ function SecondCalculator() {
         <input
           onChange={handleChange}
           onKeyPress={handleEnter}
-          value={money}
           type="number"
         ></input>
         <select onChange={handleSelectTab}>
@@ -146,7 +143,7 @@ const InputBox = styled.div`
     border: none;
     border-radius: 1rem;
     outline: none;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     padding: 0 4vmin;
     background: #fef9ef;
@@ -169,16 +166,19 @@ const InputBox = styled.div`
     width: 100px;
     height: 50px;
     padding: 0.6em 1.4em;
-    border: 1px solid #fff;
+    border: none;
     text-align: center;
     border-radius: 0.5em;
     caret-color: #ff865e;
     background-color: #ff865e;
     color: #fff;
+    box-shadow: 0.1rem 0.1rem 0.3rem #ff865e;
+  }
+  }
 
-    select: focus {
-      border-color: #ff695e;
-    }
+  select:hover,
+  select:focus {
+    border: 2px solid #ff695e;
   }
 `;
 const ResultBox = styled.div`
@@ -203,20 +203,23 @@ const Tabs = styled.div`
   }
 `;
 const Tab = styled.div`
-  background: ${(props) => (props.isActive ? "#ff865e" : "#FEF9EF")};
-  color: ${(props) => (props.isActive ? "#FEF9EF" : "black")};
+  background: ${(props) => (props.isActive ? "#FEF9EF" : "#ff865e")};
+  color: ${(props) => (props.isActive ? "#ff865e" : "#FEF9EF")};
+  font-weight: 600;
   cursor: pointer;
   padding: 10px;
   width: 60px;
+  border-right: 1px solid #fef9ef;
+  text-align: center;
 `;
 
 const Currency = styled.h3`
   margin-bottom: 20px;
   font-weight: 600;
   font-size: 20px;
-  color: #ff695e;
+  color: #ff865e;
 `;
 
 const Date = styled.p`
-  color: #ff695e;
+  color: #ff865e;
 `;
