@@ -8,6 +8,7 @@ import { FIRST_CALCULATOR_OPTIONS } from "../utils/constants";
 function FirstCalculator() {
   const [remittance, setRemittance] = useState(0); // 송금액
   const [receviedAmount, setReceviedAmount] = useState(0); // 수취금액
+  const [isResult, setIsResult] = useState(false); // 결과값이 있는지 여부
   const [exchangeRate, setExchangeRate] = useState({
     USDKRW: 0,
     USDJPY: 0,
@@ -17,7 +18,7 @@ function FirstCalculator() {
     rate: 0,
     nation: "",
   });
-
+  const [isValidAmount, setIsValidAmount] = useState(true);
   const { isLoading, isError, data } = useExchangeRateLoad();
 
   useEffect(() => {
@@ -38,7 +39,7 @@ function FirstCalculator() {
       rate,
       nation,
     });
-    setReceviedAmount(0);
+    setIsResult(false);
   };
 
   const onChangeRemittance = (e) => {
@@ -46,9 +47,27 @@ function FirstCalculator() {
   };
 
   const onSubmit = () => {
+    const parsedRemittance = parseFloat(remittance);
+    setIsResult(true);
+    if (
+      parsedRemittance <= 0 ||
+      parsedRemittance >= 10000 ||
+      isNaN(parsedRemittance)
+    ) {
+      setIsValidAmount(false);
+      return;
+    }
+    setIsValidAmount(true);
     setReceviedAmount(
-      (parseFloat(remittance) * selectedExchangeRate.rate).toFixed(2)
+      (parsedRemittance * selectedExchangeRate.rate).toFixed(2)
     );
+  };
+
+  const amountMessage = (isValidAmount) => {
+    return isValidAmount
+      ? `수취금액은 ${comma(receviedAmount)} ${selectedExchangeRate.nation}
+    입니다.`
+      : "송금액이 바르지 않습니다";
   };
 
   if (isError) return <div>로딩 중 에러가 발생 했습니다.</div>;
@@ -92,11 +111,10 @@ function FirstCalculator() {
           Submit
         </SubmitButton>
 
-        {receviedAmount !== 0 && (
+        {isResult && (
           <CalculatorBlock>
-            <CalculatorText>
-              수취금액은 {comma(receviedAmount)} {selectedExchangeRate.nation}{" "}
-              입니다.
+            <CalculatorText error={!isValidAmount}>
+              {amountMessage(isValidAmount)}
             </CalculatorText>
           </CalculatorBlock>
         )}
@@ -133,6 +151,7 @@ const CalculatorBlock = styled.div`
 const CalculatorText = styled.span`
   font-size: 18px;
   font-weight: 500;
+  ${(props) => props.error && "color: #b3130b;"}
 `;
 
 const SubmitButton = styled(Button)`
