@@ -22,7 +22,7 @@ function SecondCalculator() {
     getData();
   }, []);
 
-  const handleSelect = (e) => {
+  const handleSelectTab = (e) => {
     setCountry(e.target.value);
     calculate();
   };
@@ -30,6 +30,9 @@ function SecondCalculator() {
   const handleClick = (e) => {
     setSelectedTab(e.target.id);
     setActiveTab(e.target.id);
+    console.log(activeTab);
+    // console.log(e.target.id);
+    // console.log(selectedTab);
     calculate();
   };
 
@@ -70,6 +73,7 @@ function SecondCalculator() {
 
   const handleChange = (e) => {
     setMoney(e.target.value);
+    calculate();
   };
 
   const handleEnter = (e) => {
@@ -90,7 +94,7 @@ function SecondCalculator() {
           value={money}
           type="number"
         ></input>
-        <select onChange={handleSelect}>
+        <select onChange={handleSelectTab}>
           {data.map((item) => (
             <option key={item.id}>{item.tabTitle}</option>
           ))}
@@ -105,18 +109,13 @@ function SecondCalculator() {
               key={item.id}
               id={item.tabTitle}
               onClick={handleClick}
-              className={
-                activeTab === item.id
-                  ? "tab-title tab-title-active"
-                  : "tab-title"
-              }
+              isActive={activeTab === item.tabTitle}
             >
               {item.tabTitle}
             </Tab>
           ))}
       </Tabs>
       <ResultBox>
-        <hr />
         <Currency>
           {selectedTab} : {result.toFixed(2)}
         </Currency>
@@ -132,11 +131,29 @@ const CalculatorContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 30vh;
   height: 100vh;
 `;
 const InputBox = styled.div`
+  display: flex;
   margin-bottom: 30px;
+
+  input {
+    width: 180px;
+    height: 50px;
+    margin-right: 20px;
+    border: none;
+    border-radius: 1rem;
+    outline: none;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 0 4vmin;
+    background: #fef9ef;
+    color: #ff865e;
+    caret-color: #ff865e;
+    box-shadow: inset 0.1rem 0.1rem 0.25rem;
+  }
 
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
@@ -144,13 +161,40 @@ const InputBox = styled.div`
     -moz-appearance: none;
     appearance: none;
   }
+
+  select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100px;
+    height: 50px;
+    padding: 0.6em 1.4em;
+    border: 1px solid #fff;
+    text-align: center;
+    border-radius: 0.5em;
+    caret-color: #ff865e;
+    background-color: #ff865e;
+    color: #fff;
+
+    select: focus {
+      border-color: #ff695e;
+    }
+  }
 `;
-const ResultBox = styled.div``;
+const ResultBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 300px;
+  height: 200px;
+  background-color: #fef9ef;
+`;
 
 const Tabs = styled.div`
   display: flex;
-  list-style: none;
-  padding: 0px;
+  width: 300px;
+  justify-content: space-between;
   margin: 0;
   .tab-content {
     background-color: #f6d55c;
@@ -159,23 +203,20 @@ const Tabs = styled.div`
   }
 `;
 const Tab = styled.div`
-  margin: 5px;
-
-  .tab-title {
-    background-color: #fff;
-    display: inline-block;
-    padding: 10px;
-    color: #c7c6c2;
-    cursor: pointer;
-    margin-left: 1px;
-  }
-
-  .tab-title-active {
-    background-color: #f6d55c;
-    color: #00070a;
-  }
+  background: ${(props) => (props.isActive ? "#ff865e" : "#FEF9EF")};
+  color: ${(props) => (props.isActive ? "#FEF9EF" : "black")};
+  cursor: pointer;
+  padding: 10px;
+  width: 60px;
 `;
 
-const Currency = styled.div``;
+const Currency = styled.h3`
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 20px;
+  color: #ff695e;
+`;
 
-const Date = styled.div``;
+const Date = styled.p`
+  color: #ff695e;
+`;
