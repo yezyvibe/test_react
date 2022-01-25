@@ -53,7 +53,7 @@ function FirstCalculator() {
     setIsResult(true);
     if (
       parsedRemittance <= 0 ||
-      parsedRemittance >= 10000 ||
+      parsedRemittance > 10000 ||
       isNaN(parsedRemittance)
     ) {
       setIsValidAmount(false);

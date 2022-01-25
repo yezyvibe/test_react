@@ -28,7 +28,7 @@ test("송금액 입력이 0일 경우 Submit 클릭 했을 때 수취금액 유�
   expect(text).toHaveTextContent("송금액이 바르지 않습니다");
 });
 
-test("송금액 입력이 10000일 경우 Submit 클릭 했을 때 수취금액 유효성 검사", async () => {
+test("송금액 입력이 10001일 경우 Submit 클릭 했을 때 수취금액 유효성 검사", async () => {
   render(<FirstCalculator />);
   const submitButton = await screen.findByRole("button");
   const input = screen.getByPlaceholderText("송금액을 입력해주세요");
