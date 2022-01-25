@@ -1,7 +1,8 @@
 import React from "react";
+import FirstCalculator from "../components/FirstCalculator";
 
-function FirstCalculator() {
-  return <div>FirstCalculator</div>;
+function FirstCalculatorPage() {
+  return <FirstCalculator />;
 }
 
-export default FirstCalculator;
+export default FirstCalculatorPage;
