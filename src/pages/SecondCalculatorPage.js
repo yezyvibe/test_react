@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getExchangeRate } from "../utils/api";
 import styled from "styled-components";
 
 function SecondCalculator() {
-  const [money, setMoney] = useState("");
+  const [money, setMoney] = useState(0);
   const [selectedTab, setSelectedTab] = useState("CAD");
-  const [standard, setStandard] = useState("");
+  const [activeTab, setActiveTab] = useState("CAD");
   const [selectedCountry, setCountry] = useState("USD");
+  const [result, setResult] = useState(0);
+
   const data = [
     { id: "0", tabTitle: "USD", tabContent: "Tab Content 0" },
     { id: "1", tabTitle: "CAD", tabContent: "Tab Content 1" },
@@ -15,24 +17,56 @@ function SecondCalculator() {
     { id: "4", tabTitle: "JPY", tabContent: "Tab Content 4" },
     { id: "5", tabTitle: "CNY", tabContent: "Tab Content 5" },
   ];
-  const [activeTab, setActiveTab] = useState(data[0].id);
 
-  const listTitles = data.map((item) => (
-    <li
-      onClick={() => setActiveTab(item.id)}
-      className={
-        activeTab === item.id ? "tab-title tab-title-active" : "tab-title"
-      }
-    >
-      {item.tabTitle}
-    </li>
-  ));
+  useEffect(() => {
+    getData();
+  }, []);
 
-  const listContent = data.map((item) => (
-    <p style={activeTab === item.id ? {} : { display: "none" }}>
-      {item.tabContent}
-    </p>
-  ));
+  const handleSelect = (e) => {
+    setCountry(e.target.value);
+    calculate();
+  };
+
+  const handleClick = (e) => {
+    setSelectedTab(e.target.id);
+    setActiveTab(e.target.id);
+    calculate();
+  };
+
+  const calculate = () => {
+    const fromCurrency = "USD" + selectedCountry;
+    const toCurrency = "USD" + selectedTab;
+    setResult(
+      exchangeRateInfo[toCurrency] *
+        (1 / exchangeRateInfo[fromCurrency]) *
+        money
+    );
+  };
+
+  const [referenceDate, setReferenceDate] = useState("");
+  const [exchangeRateInfo, setExchangeRateInfo] = useState({});
+
+  const getData = async () => {
+    try {
+      const { quotes, timestamp } = await getExchangeRate();
+      const { USDUSD, USDKRW, USDJPY, USDCAD, USDCNY, USDHKD } = quotes;
+      setExchangeRateInfo({ USDUSD, USDKRW, USDJPY, USDCAD, USDCNY, USDHKD });
+      convertDate(timestamp);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const convertDate = (time) => {
+    const dateObject = new window.Date(time * 1000);
+    const dateFormat = dateObject.toLocaleDateString();
+    const monthName = dateObject.toLocaleString("en-US", {
+      month: "short",
+    });
+    setReferenceDate(
+      dateFormat.slice(0, 4) + "-" + monthName + "-" + dateFormat.slice(9, 11)
+    );
+  };
 
   const handleChange = (e) => {
     setMoney(e.target.value);
@@ -44,43 +78,7 @@ function SecondCalculator() {
         setMoney(1000);
       }
     }
-  };
-
-  const handleSelect = (e) => {
-    setCountry(e.target.value);
-    setStandard(selectedCountry + selectedTab);
-  };
-
-  const handleClick = (e) => {
-    setSelectedTab(e.target.id);
-    getData();
-  };
-
-  const [referenceDate, setReferenceDate] = useState("");
-
-  const [exchangeRateInfo, setExchangeRateInfo] = useState({});
-  const getData = async () => {
-    try {
-      const { quotes, timestamp } = await getExchangeRate();
-      // const { USDKRW, USDJPY, USDCAD, USDCNY, USDHKD} = quotes;
-      console.log(quotes);
-      console.log(timestamp);
-      const milliseconds = timestamp * 1000;
-      const dateObject = new window.Date(milliseconds);
-      const humanDateFormat = dateObject.toLocaleDateString();
-      const monthNameShort = dateObject.toLocaleString("en-US", {
-        month: "short",
-      });
-      setReferenceDate(
-        humanDateFormat.slice(0, 4) +
-          "-" +
-          monthNameShort +
-          "-" +
-          humanDateFormat.slice(9, 11)
-      );
-    } catch (e) {
-      console.log(e);
-    }
+    calculate();
   };
 
   return (
@@ -100,25 +98,29 @@ function SecondCalculator() {
       </InputBox>
 
       <Tabs>
-        <ul className="tabs-titles">
-          {data
-            .filter((item) => item.tabTitle !== selectedCountry)
-            .map((item) => (
-              <li>
-                <Tab key={item.id} id={item.tabTitle} onClick={handleClick}>
-                  {item.tabTitle}
-                </Tab>
-              </li>
-            ))}
-        </ul>
-        <div className="tab-content">
-          {listContent} <h3>{referenceDate}</h3>
-        </div>
+        {data
+          .filter((item) => item.tabTitle !== selectedCountry)
+          .map((item) => (
+            <Tab
+              key={item.id}
+              id={item.tabTitle}
+              onClick={handleClick}
+              className={
+                activeTab === item.id
+                  ? "tab-title tab-title-active"
+                  : "tab-title"
+              }
+            >
+              {item.tabTitle}
+            </Tab>
+          ))}
       </Tabs>
       <ResultBox>
         <hr />
-        <Currency>{selectedTab}</Currency>
-        <Date>기준일: {referenceDate}</Date>
+        <Currency>
+          {selectedTab} : {result.toFixed(2)}
+        </Currency>
+        <Date>기준일 : {referenceDate}</Date>
       </ResultBox>
     </CalculatorContainer>
   );
@@ -135,12 +137,6 @@ const CalculatorContainer = styled.div`
 `;
 const InputBox = styled.div`
   margin-bottom: 30px;
-  // input {
-  //   border-radius: 5px;
-  // }
-  // input:focus {
-  //   outline: 2px solid #f6d55c;
-  // }
 
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
@@ -150,13 +146,20 @@ const InputBox = styled.div`
   }
 `;
 const ResultBox = styled.div``;
+
 const Tabs = styled.div`
   display: flex;
-  .tabs-titles {
-    list-style: none;
-    padding: 0px;
+  list-style: none;
+  padding: 0px;
+  margin: 0;
+  .tab-content {
+    background-color: #f6d55c;
+    padding: 5px;
     margin: 0;
   }
+`;
+const Tab = styled.div`
+  margin: 5px;
 
   .tab-title {
     background-color: #fff;
@@ -171,14 +174,7 @@ const Tabs = styled.div`
     background-color: #f6d55c;
     color: #00070a;
   }
-
-  .tab-content {
-    background-color: #f6d55c;
-    padding: 5px;
-    margin: 0;
-  }
 `;
-const Tab = styled.div``;
 
 const Currency = styled.div``;
 
