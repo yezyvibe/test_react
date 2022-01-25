@@ -9,7 +9,7 @@ function App() {
     <>
       <GlobalStyles />
       <Routes>
-        <Route path="/" element={<MainPage />} />
+        <Route path="/text_react/" element={<MainPage />} />
         <Route path="/first" element={<FirstCalculatorPage />} />
         <Route path="/second" element={<SecondCalculatorPage />} />
       </Routes>
