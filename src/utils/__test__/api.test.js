@@ -1,6 +1,4 @@
-const { getExchangeRate } = require("../api");
 const { EXCHANGE_RATE_API_URL } = require("../constants");
-const mockData = require("./exchangeRate.json");
 
 test("GET 성공 시 Status 는 200 을 반환한다.", async () => {
   const response = await fetch(EXCHANGE_RATE_API_URL, { method: "GET" });
