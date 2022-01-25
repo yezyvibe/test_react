@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../components/Button";
 import useExchangeRateLoad from "../hooks/useExchangeRateLoad";
@@ -9,6 +9,7 @@ function FirstCalculator() {
   const [remittance, setRemittance] = useState(0); // 송금액
   const [receviedAmount, setReceviedAmount] = useState(0); // 수취금액
   const [isResult, setIsResult] = useState(false); // 결과값이 있는지 여부
+  const [isValidAmount, setIsValidAmount] = useState(true);
   const [exchangeRate, setExchangeRate] = useState({
     USDKRW: 0,
     USDJPY: 0,
@@ -18,35 +19,36 @@ function FirstCalculator() {
     rate: 0,
     nation: "",
   });
-  const [isValidAmount, setIsValidAmount] = useState(true);
+  const { rate, nation } = selectedExchangeRate;
   const { isLoading, isError, data } = useExchangeRateLoad();
 
+  const onChangeSelectedExchangeRate = (rate, nation) => {
+    setSelectedExchangeRate({ rate, nation });
+  };
+
   useEffect(() => {
-    if (data) {
-      const { USDKRW, USDJPY, USDPHP } = data;
-      setExchangeRate({ USDKRW, USDJPY, USDPHP });
-      setSelectedExchangeRate({
-        rate: USDKRW.toFixed(2),
-        nation: "KRW",
-      });
-    }
+    if (!data) return;
+    const { USDKRW, USDJPY, USDPHP } = data;
+    setExchangeRate({ USDKRW, USDJPY, USDPHP });
+    onChangeSelectedExchangeRate(USDKRW.toFixed(2), "KRW");
   }, [data]);
 
-  const onChangeOption = (e) => {
-    const rate = exchangeRate[`USD${e.target.value}`].toFixed(2);
-    const nation = e.target.value;
-    setSelectedExchangeRate({
-      rate,
-      nation,
-    });
-    setIsResult(false);
-  };
+  const onChangeOption = useCallback(
+    (e) => {
+      const newNation = e.target.value;
+      const newRate = exchangeRate[`USD${newNation}`].toFixed(2);
+      onChangeSelectedExchangeRate(newRate, newNation);
+      setIsResult(false);
+    },
+    [exchangeRate]
+  );
 
   const onChangeRemittance = (e) => {
     setRemittance(e.target.value);
+    console.log(e.target.value);
   };
 
-  const onSubmit = () => {
+  const onSubmit = useCallback(() => {
     const parsedRemittance = parseFloat(remittance);
     setIsResult(true);
     if (
@@ -58,17 +60,18 @@ function FirstCalculator() {
       return;
     }
     setIsValidAmount(true);
-    setReceviedAmount(
-      (parsedRemittance * selectedExchangeRate.rate).toFixed(2)
-    );
-  };
+    setReceviedAmount((parsedRemittance * rate).toFixed(2));
+  }, [remittance, rate]);
 
-  const amountMessage = (isValidAmount) => {
-    return isValidAmount
-      ? `수취금액은 ${comma(receviedAmount)} ${selectedExchangeRate.nation}
+  const amountMessage = useCallback(
+    (isValidAmount) => {
+      return isValidAmount
+        ? `수취금액은 ${comma(receviedAmount)} ${nation}
     입니다.`
-      : "송금액이 바르지 않습니다";
-  };
+        : "송금액이 바르지 않습니다";
+    },
+    [receviedAmount, nation]
+  );
 
   if (isError) return <div>로딩 중 에러가 발생 했습니다.</div>;
   if (isLoading) return <div>환율 정보 로딩중...</div>;
@@ -98,7 +101,7 @@ function FirstCalculator() {
 
         <CalculatorBlock>
           <CalculatorText>환율: </CalculatorText>
-          {selectedExchangeRate.rate} {selectedExchangeRate.nation}/USD
+          {rate} {nation}/USD
         </CalculatorBlock>
 
         <CalculatorBlock>
